@@ -21,7 +21,7 @@
       pkgs = import nixpkgs {
         inherit system;
         overlays = [
-          self.overlay
+          self.overlays.${system}
         ];
       };
       relative = self.packages.${system};
