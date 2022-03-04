@@ -41,7 +41,7 @@
     final:
     prev:
     {
-      atools = pkgs.atools {};
+      atools = pkgs.atools;
     });
   };
 }
