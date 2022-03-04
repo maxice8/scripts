@@ -36,12 +36,22 @@
     });
     overlays = forAllSystems (system:
     let
-      pkgs = self.packages.${system};
+      pkgs = nixpkgsFor.${system};
+      our = self.packages.${system};
     in
     final:
     prev:
     {
-      atools = pkgs.atools;
+      maxice8-scripts = pkgs.buildEnv {
+        name = "maxice8-scripts";
+        paths =
+          [
+            our.atools
+            our.fgc
+            our.unpk
+            our.dlbr
+          ];
+      };
     });
   };
 }
