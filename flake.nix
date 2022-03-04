@@ -18,12 +18,7 @@
   {
     packages = forAllSystems (system:
     let
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [
-          self.overlays.${system}
-        ];
-      };
+      pkgs = nixpkgsFor.${system};
       relative = self.packages.${system};
     in
     {
@@ -43,8 +38,10 @@
     let
       pkgs = self.packages.${system};
     in
+    final:
+    prev:
     {
-      atools = pkgs.atools;
+      atools = pkgs.atools {};
     });
   };
 }
