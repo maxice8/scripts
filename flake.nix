@@ -18,7 +18,12 @@
   {
     packages = forAllSystems (system:
     let
-      pkgs = nixpkgsFor.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [
+          self.overlay
+        ];
+      };
       relative = self.packages.${system};
     in
     {
@@ -35,7 +40,7 @@
       dlbr = pkgs.callPackage ./scripts/dlbr.nix { inherit relative; };
     });
     overlay = final: prev: {
-      atools = final.pkgs.atools;
+      atools = self.pkgs.atools;
     };
   };
 }
