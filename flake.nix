@@ -39,8 +39,12 @@
       tracking-branch = pkgs.callPackage ./scripts/tracking-branch.nix {};
       dlbr = pkgs.callPackage ./scripts/dlbr.nix { inherit relative; };
     });
-    overlay = final: prev: {
-      atools = self.pkgs.atools;
-    };
+    overlays = forAllSystems (system:
+    let
+      pkgs = self.packages.${system};
+    in
+    {
+      atools = pkgs.atools;
+    });
   };
 }
