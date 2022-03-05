@@ -28,11 +28,9 @@
     {
       printok = pkgs.callPackage ./scripts/printok.nix {};
       printerr = pkgs.callPackage ./scripts/printerr.nix {};
-      alpine-stable-prefix = pkgs.callPackage ./scripts/alpine-stable-prefix.nix {};
       guess-remote = pkgs.callPackage ./scripts/guess-remote.nix {};
       main-branch = pkgs.callPackage ./scripts/main-branch.nix {};
       gbr = pkgs.callPackage ./scripts/gbr.nix { inherit relative; };
-      atools = pkgs.callPackage ./scripts/atools.nix { inherit relative; };
       unpk = pkgs.callPackage ./scripts/unpk.nix {};
       fgc = pkgs.callPackage ./scripts/fgc.nix {};
       tracking-branch = pkgs.callPackage ./scripts/tracking-branch.nix {};
@@ -50,9 +48,9 @@
         name = "maxice8-scripts";
         paths =
           [
-            our.atools
-            our.fgc
+            our.gbr
             our.unpk
+            our.fgc
             our.dlbr
           ];
       };

@@ -34,14 +34,6 @@ for(spec in $*) {
         ${relative.printerr}/bin/printerr failed to create ${"''''$branch''''"}
       }
     } else {
-      _base=`{${relative.alpine-stable-prefix}/bin/alpine-stable-prefix $branch}
-      if(! ~ $#_base 0) {
-        if(${pkgs.git}/bin/git switch --quiet --force-create $branch $remote/$_base-stable) {
-          ${relative.printok}/bin/printok switched to newly created ${"''''$branch''''"} based on ${"''''$_base-stable''''"}
-        } else {
-          ${relative.printerr}/bin/printer failed to create ${"''''$branch''''"}
-        }
-      } else {
         tbranch=`{${relative.main-branch}/bin/main-branch origin}
         if(${pkgs.git}/bin/git switch --quiet --force-create $branch $remote/$tbranch) {
           ${relative.printok}/bin/printok switched to newly created ${"''''$branch''''"} based on ${"''''$tbranch''''"}
