@@ -34,13 +34,12 @@ for(spec in $*) {
         ${relative.printerr}/bin/printerr failed to create ${"''''$branch''''"}
       }
     } else {
-        tbranch=`{${relative.main-branch}/bin/main-branch origin}
-        if(${pkgs.git}/bin/git switch --quiet --force-create $branch $remote/$tbranch) {
-          ${relative.printok}/bin/printok switched to newly created ${"''''$branch''''"} based on ${"''''$tbranch''''"}
+      tbranch=`{${relative.main-branch}/bin/main-branch origin}
+      if(${pkgs.git}/bin/git switch --quiet --force-create $branch $remote/$tbranch) {
+        ${relative.printok}/bin/printok switched to newly created ${"''''$branch''''"} based on ${"''''$tbranch''''"}
         } else {
           ${relative.printerr}/bin/printerr failed to create ${"''''$branch''''"}
         }
-      }
     }
   }
 }
