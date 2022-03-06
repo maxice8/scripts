@@ -2,30 +2,19 @@
   description = "my shell scripts";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, flake-utils }:
+  flake-utils.lib.eachDefaultSystem (system:
   let
-    # User-friendly version
-    version = builtins.substring 0 8 self.lastModifiedDate;
-
-    # Systems we support
-    supportedSystems = [ "x86_64-linux" ];
-
-    forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-
-    nixpkgsFor = forAllSystems (system:
-      import nixpkgs {
-        inherit system;
-        config = { allowUnfree = true; };
-      });
+  pkgs = import nixpkgs {
+    inherit system;
+    config = { allowUnfree = true; };
+  };
+  relative = self.packages.${system};
   in
-  {
-    packages = forAllSystems (system:
-    let
-      pkgs = nixpkgsFor.${system};
-      relative = self.packages.${system};
-    in
-    {
+  rec {
+    packages = {
       printok = pkgs.callPackage ./scripts/printok.nix {};
       printerr = pkgs.callPackage ./scripts/printerr.nix {};
       guess-remote = pkgs.callPackage ./scripts/guess-remote.nix {};
@@ -35,12 +24,8 @@
       fgc = pkgs.callPackage ./scripts/fgc.nix {};
       tracking-branch = pkgs.callPackage ./scripts/tracking-branch.nix {};
       dlbr = pkgs.callPackage ./scripts/dlbr.nix { inherit relative; };
-    });
-    overlays = forAllSystems (system:
-    let
-      pkgs = nixpkgsFor.${system};
-      our = self.packages.${system};
-    in
+    };
+    overlays =
     final:
     prev:
     {
@@ -48,12 +33,12 @@
         name = "maxice8-scripts";
         paths =
           [
-            our.gbr
-            our.unpk
-            our.fgc
-            our.dlbr
+            packages.gbr
+            packages.unpk
+            packages.fgc
+            packages.dlbr
           ];
       };
-    });
-  };
+    };
+  });
 }
