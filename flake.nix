@@ -24,6 +24,7 @@
       fgc = pkgs.callPackage ./scripts/fgc.nix {};
       tracking-branch = pkgs.callPackage ./scripts/tracking-branch.nix {};
       dlbr = pkgs.callPackage ./scripts/dlbr.nix { inherit relative; };
+      pm = pkgs.callPackage ./scripts/pm.nix {};
     };
     overlays =
     final:
@@ -37,6 +38,7 @@
             packages.unpk
             packages.fgc
             packages.dlbr
+            packages.pm
           ];
       };
     };
