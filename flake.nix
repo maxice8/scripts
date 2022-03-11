@@ -26,6 +26,7 @@
           dlbr = pkgs.callPackage ./scripts/dlbr.nix { inherit relative; };
           pm = pkgs.callPackage ./scripts/pm.nix { };
           rmlocal = pkgs.callPackage ./scripts/rmlocal.nix { inherit relative; };
+          gha = pkgs.callPackage ./scripts/gha.nix { };
         };
         overlays =
           final:
@@ -41,6 +42,7 @@
                   packages.dlbr
                   packages.pm
                   packages.rmlocal
+                  packages.gha
                 ];
             };
           };
