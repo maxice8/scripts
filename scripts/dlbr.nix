@@ -1,33 +1,32 @@
 { pkgs, relative }:
-pkgs.writeScriptBin "dlbr"
+pkgs.writeShellScriptBin "dlbr"
   ''
-    #!${pkgs.rc}/bin/rc
     # SPDX-License-Identifier: GPL-3.0-only
     # dlbr BRANCH... - Delete local and remote branches matching name
-    fn delete_remote_branch {
-      if(~ $#* 0) return 1
-      if(! ${pkgs.git}/bin/git push --quiet origin --delete $1 >[2=]) {
-        ${relative.printerr}/bin/printerr failed to delete remote ${"''''$1''''"}
+    delete_remote_branch() {
+      [ $# -lt 1 ] && return 1
+      if ! ${pkgs.git}/bin/git push --quiet origin --delete $1 2>/dev/null; then 
+        ${relative.printerr}/bin/printerr "failed to delete remote '$1'"
         return 0
-      }
-      ${relative.printok}/bin/printok deleted remote ${"''''$1''''"}
+      fi
+      ${relative.printok}/bin/printok "deleted remote '$1'"
     }
 
-    fn delete_local_branch {
-      if(~ $#* 0) return 1
+    delete_local_branch() {
+      [ $# -lt 1 ] && return 1
 
-      if(! ${pkgs.git}/bin/git rev-parse --quiet --verify $1 >[2=] >[1=]) {
+      if ! ${pkgs.git}/bin/git rev-parse --quiet --verify $1 >/dev/null 2>&1; then
         return 0
-      }
+      fi
 
-      if(test `{${pkgs.git}/bin/git branch --show-current} = $1) {
+      if [ "$(${pkgs.git}/bin/git branch --show-current)" = "$1" ]; then
         #
         # Try to switch to the tracking branch
         # otherwise try to switch to the default branch
         #
-        _full=`{${relative.tracking-branch}/bin/tracking-branch $1}
+        _full="$(${relative.tracking-branch}/bin/tracking-branch "$1")"
 
-        if(test $_full = $1) {
+        if [ "$_full" = "$1" ]; then
           #
           # We hit this in case we are deleting a branch with the same name
           # as the branch it tracks, like having origin/foo tracking upstream/foo
@@ -38,40 +37,40 @@ pkgs.writeScriptBin "dlbr"
           # the default right now)
           #
           PRINTOK_QUIET=yes ${relative.gbr}/bin/gbr master
-        } else {
-          PRINTOK_QUIET=yes ${relative.gbr}/bin/gbr $_full
-        }
-      }
+        else
+          PRINTOK_QUIET=yes ${relative.gbr}/bin/gbr "$_full"
+        fi
+      fi
 
-      if(${pkgs.git}/bin/git branch -D $1 >[2=] >[1=]) {
-        ${relative.printok}/bin/printok deleted local ${"''''$1''''"}
-      } else {
-        ${relative.printerr}/bin/printerr failed to delete local ${"''''$1''''"}
+      if ${pkgs.git}/bin/git branch -D "$1" >/dev/null 2>&1; then
+        ${relative.printok}/bin/printok "deleted local '$1'"
+      else
+        ${relative.printerr}/bin/printerr "failed to delete local '$1'"
         return 1
-      }
+      fi
     }
 
-    if(! ${pkgs.git}/bin/git rev-parse --is-inside-work-tree >[2=] >[1=]) exit 1
-    if(~ $#* 0) exit 1
+    ${pkgs.git}/bin/git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 1
+    [ $# -lt 1 ] && exit 1
 
     # The user might want to delete more than 10 branches
     # most servers have a maximum amount of connections capped
     # at 10 so process 10 of them at once
     connections=0
 
-    for(i in $*) {
-      while(test $connections -gt 9) sleep 1
+    for i in "$@"; do
+      while [ $connections -gt 9 ]; do sleep 1; done
   
       {
         # keep track of remote connections, we don't
         # want to go over the limit
-        if(~ $#DLBR_LOCAL 0) {
-          connections=`{expr $connections + 1}
-          delete_remote_branch $i
-          connections=`{expr $connections - 1}
-        }
-        delete_local_branch $i 
+        if [ -z "''${DLBR_LOCAL+set}" ]; then
+          connections=$((connections + 1))
+          delete_remote_branch "$i"
+          connections=$((connections - 1))
+        fi
+        delete_local_branch "$i"
       }&
-    }
+    done
     wait
   ''
