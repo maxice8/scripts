@@ -25,7 +25,7 @@
           tracking-branch = pkgs.callPackage ./scripts/tracking-branch.nix { };
           dlbr = pkgs.callPackage ./scripts/dlbr.nix { inherit relative; };
           pm = pkgs.callPackage ./scripts/pm.nix { };
-          rmlocal = pkgs.callPackage ./scripts/rmlocal.nix { };
+          rmlocal = pkgs.callPackage ./scripts/rmlocal.nix { inherit relative; };
         };
         overlays =
           final:
