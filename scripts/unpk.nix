@@ -40,7 +40,7 @@ pkgs.writeShellScriptBin "unpk"
         ${pkgs.xz}/bin/unxz -cd "$i"
         ;;
       *)
-        echo -- file format for '$i'  not supported >[1=2]
+        ${pkgs.coreutils}/bin/printf "file format for '%s' not supported" "$i" >&2
         ret=$((ret + 1))
         ;;
       esac
