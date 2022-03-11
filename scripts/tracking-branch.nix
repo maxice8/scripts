@@ -13,7 +13,7 @@ pkgs.writeShellScriptBin "tracking-branch"
     #
     # If there is no tracking branch then we can safely use our own branch name
     #
-    if [ -z "$_f" ] || echo -- "$_f" | ${pkgs.gnugrep}/bin/grep -F -q '@{u}'; then
+    if [ -z "$_f" ] || ${pkgs.coreutils}/bin/printf '%s' "$_f" | ${pkgs.gnugrep}/bin/grep -F -q '@{u}'; then
       ${pkgs.git}/bin/git branch --show-current
       exit 0
     fi
@@ -22,5 +22,5 @@ pkgs.writeShellScriptBin "tracking-branch"
     # We only reach here if we have a tracking branch, which takes the form of
     # <remote>/<branch>, split by the / and take the second value
     #
-    echo -- $_f | ${pkgs.coreutils}/bin/cut -d / -f2
+    ${pkgs.coreutils}/bin/printf '%s' "$_f" | ${pkgs.coreutils}/bin/cut -d / -f2
   ''
