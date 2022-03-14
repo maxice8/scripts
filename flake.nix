@@ -27,6 +27,7 @@
           pm = pkgs.callPackage ./scripts/pm.nix { };
           rmlocal = pkgs.callPackage ./scripts/rmlocal.nix { inherit relative; };
           gha = pkgs.callPackage ./scripts/gha.nix { };
+          git-clean-branches = pkgs.callPackage ./scripts/git-clean-branches.nix { inherit relative; };
         };
         overlays =
           final:
@@ -43,6 +44,7 @@
                   packages.pm
                   packages.rmlocal
                   packages.gha
+                  packages.git-clean-branches
                 ];
             };
           };
