@@ -11,16 +11,15 @@
           inherit system;
           config = { allowUnfree = true; };
           overlays = [
-            (final: prev: {
-              inherit (self.packages.${system})
-                printerr
-                printok
-                gbr
-                dlbr
-                main-branch
-                guess-remote
-                tracking-branch;
-            })
+            (final: prev:
+              # attrSet that includes all defined packages
+              builtins.listToAttrs
+                (map
+                  (x: {
+                    name = x;
+                    value = self.packages.${system}.${x};
+                  })
+                  (builtins.attrNames self.packages.${system})))
           ];
         };
       in
