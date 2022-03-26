@@ -1,8 +1,19 @@
-{ pkgs }:
-pkgs.writeShellScriptBin "unpk"
+{ writeShellScriptBin
+, coreutils
+, gnutar
+, lzma
+, bzip2
+, unrar
+, gzip
+, zstd
+, unzip
+, p7zip
+, xz
+}:
+writeShellScriptBin "unpk"
   ''
     if [ $# -lt 1 ]; then
-      ${pkgs.coreutils}/bin/printf "%s '<archives...>'\n" "$0"
+      ${coreutils}/bin/printf "%s '<archives...>'\n" "$0"
       exit 0
     fi
 
@@ -10,37 +21,37 @@ pkgs.writeShellScriptBin "unpk"
     for i in "$@"; do
       case "$i" in
       *.tar.bz2|*.tar.gz|*.tar.xz|*.tbz2|*.tgz|*.txz|*.tar|*.xbps|*.apk)
-        ${pkgs.gnutar}/bin/tar xfv "$i"
+        ${gnutar}/bin/tar xfv "$i"
         ;;
       *.lzma)
-        ${pkgs.lzma}/bin/unlzma -cd "$i"
+        ${lzma}/bin/unlzma -cd "$i"
         ;;
       *.bz2)
-        ${pkgs.bzip2}/bin/bunzip2 -cd "$i"  
+        ${bzip2}/bin/bunzip2 -cd "$i"  
         ;;
       *.rar)
-        ${pkgs.unrar}/bin/unrar x -ad "$i"
+        ${unrar}/bin/unrar x -ad "$i"
         ;;
       *.gz)
-        ${pkgs.gzip}/bin/gunzip "$i"
+        ${gzip}/bin/gunzip "$i"
         ;;
       *.zst)
-        ${pkgs.zstd}/bin/unzstd -cq "$i"
+        ${zstd}/bin/unzstd -cq "$i"
         ;;
       *.zip)
-        ${pkgs.unzip}/bin/unzip "$i"
+        ${unzip}/bin/unzip "$i"
         ;;
       *.Z)
-        ${pkgs.gzip}/bin/uncompress -c "$i"
+        ${gzip}/bin/uncompress -c "$i"
         ;;
       *.7z|*.arj|*.cab|*.chm|*.dmg|*.iso|*.lzh|*.msi|*.rpm|*.udf|*.wim|*.xa)
-        ${pkgs.p7zip}/bin/7za x "$i"
+        ${p7zip}/bin/7za x "$i"
         ;;
       *.xz)
-        ${pkgs.xz}/bin/unxz -cd "$i"
+        ${xz}/bin/unxz -cd "$i"
         ;;
       *)
-        ${pkgs.coreutils}/bin/printf "file format for '%s' not supported" "$i" >&2
+        ${coreutils}/bin/printf "file format for '%s' not supported" "$i" >&2
         ret=$((ret + 1))
         ;;
       esac

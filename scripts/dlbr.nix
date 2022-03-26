@@ -1,30 +1,36 @@
-{ pkgs, relative }:
-pkgs.writeShellScriptBin "dlbr"
+{ writeShellScriptBin
+, git
+, printerr
+, printok
+, tracking-branch
+, gbr
+}:
+writeShellScriptBin "dlbr"
   ''
     # SPDX-License-Identifier: GPL-3.0-only
     # dlbr BRANCH... - Delete local and remote branches matching name
     delete_remote_branch() {
       [ $# -lt 1 ] && return 1
-      if ! ${pkgs.git}/bin/git push --quiet origin --delete $1 2>/dev/null; then 
-        ${relative.printerr}/bin/printerr "failed to delete remote '$1'"
+      if ! ${git}/bin/git push --quiet origin --delete $1 2>/dev/null; then 
+        ${printerr}/bin/printerr "failed to delete remote '$1'"
         return 0
       fi
-      ${relative.printok}/bin/printok "deleted remote '$1'"
+      ${printok}/bin/printok "deleted remote '$1'"
     }
 
     delete_local_branch() {
       [ $# -lt 1 ] && return 1
 
-      if ! ${pkgs.git}/bin/git rev-parse --quiet --verify $1 >/dev/null 2>&1; then
+      if ! ${git}/bin/git rev-parse --quiet --verify $1 >/dev/null 2>&1; then
         return 0
       fi
 
-      if [ "$(${pkgs.git}/bin/git branch --show-current)" = "$1" ]; then
+      if [ "$(${git}/bin/git branch --show-current)" = "$1" ]; then
         #
         # Try to switch to the tracking branch
         # otherwise try to switch to the default branch
         #
-        _full="$(${relative.tracking-branch}/bin/tracking-branch "$1")"
+        _full="$(${tracking-branch}/bin/tracking-branch "$1")"
 
         if [ "$_full" = "$1" ]; then
           #
@@ -36,21 +42,21 @@ pkgs.writeShellScriptBin "dlbr"
           # once we can detect which branch is default (master is overwhelmingly
           # the default right now)
           #
-          PRINTOK_QUIET=yes ${relative.gbr}/bin/gbr master
+          PRINTOK_QUIET=yes ${gbr}/bin/gbr master
         else
-          PRINTOK_QUIET=yes ${relative.gbr}/bin/gbr "$_full"
+          PRINTOK_QUIET=yes ${gbr}/bin/gbr "$_full"
         fi
       fi
 
-      if ${pkgs.git}/bin/git branch -D "$1" >/dev/null 2>&1; then
-        ${relative.printok}/bin/printok "deleted local '$1'"
+      if ${git}/bin/git branch -D "$1" >/dev/null 2>&1; then
+        ${printok}/bin/printok "deleted local '$1'"
       else
-        ${relative.printerr}/bin/printerr "failed to delete local '$1'"
+        ${printerr}/bin/printerr "failed to delete local '$1'"
         return 1
       fi
     }
 
-    ${pkgs.git}/bin/git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 1
+    ${git}/bin/git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 1
     [ $# -lt 1 ] && exit 1
 
     # The user might want to delete more than 10 branches

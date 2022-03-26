@@ -1,12 +1,19 @@
-{ pkgs, relative }:
-pkgs.writeScriptBin "gbr"
+{ writeScriptBin
+, rc
+, git
+, guess-remote
+, printerr
+, printok
+, main-branch
+}:
+writeScriptBin "gbr"
   ''
-    #!${pkgs.rc}/bin/rc
+    #!${rc}/bin/rc
     # Show git branches and switch to them
-    if(! ${pkgs.git}/bin/git rev-parse --is-inside-work-tree >[2=] >[1=]) exit 1
+    if(! ${git}/bin/git rev-parse --is-inside-work-tree >[2=] >[1=]) exit 1
     if(~ $#* 0) exit 1
 
-    remote=`{${relative.guess-remote}/bin/guess-remote}
+    remote=`{${guess-remote}/bin/guess-remote}
 
     if(test -z $remote) exit 1
 
@@ -19,26 +26,26 @@ pkgs.writeScriptBin "gbr"
         based=$spec(2)
       }
 
-      if(${pkgs.git}/bin/git rev-parse --quiet --verify $branch >[1=] >[2=]) {
+      if(${git}/bin/git rev-parse --quiet --verify $branch >[1=] >[2=]) {
         # Branch already exists, switch to it
-        if(${pkgs.git}/bin/git switch --quiet $branch) {
-          ${relative.printok}/bin/printok switched to ${"''''$branch''''"}
+        if(${git}/bin/git switch --quiet $branch) {
+          ${printok}/bin/printok switched to ${"''''$branch''''"}
         }  else {
-          ${relative.printerr}/bin/printerr failed to switch to ${"''''$branch''''"}
+          ${printerr}/bin/printerr failed to switch to ${"''''$branch''''"}
         }
       } else {
         if(test $#based -gt 0) {
-          if(${pkgs.git}/bin/git switch --quiet --force-create $branch $remote/$based) {
-            ${relative.printok}/bin/printok switched to newly created ${"''''$branch''''"} based on ${"''''$based''''"}
+          if(${git}/bin/git switch --quiet --force-create $branch $remote/$based) {
+            ${printok}/bin/printok switched to newly created ${"''''$branch''''"} based on ${"''''$based''''"}
           } else {
-            ${relative.printerr}/bin/printerr failed to create ${"''''$branch''''"}
+            ${printerr}/bin/printerr failed to create ${"''''$branch''''"}
           }
         } else {
-          tbranch=`{${relative.main-branch}/bin/main-branch origin}
-          if(${pkgs.git}/bin/git switch --quiet --force-create $branch $remote/$tbranch) {
-            ${relative.printok}/bin/printok switched to newly created ${"''''$branch''''"} based on ${"''''$tbranch''''"}
+          tbranch=`{${main-branch}/bin/main-branch origin}
+          if(${git}/bin/git switch --quiet --force-create $branch $remote/$tbranch) {
+            ${printok}/bin/printok switched to newly created ${"''''$branch''''"} based on ${"''''$tbranch''''"}
             } else {
-              ${relative.printerr}/bin/printerr failed to create ${"''''$branch''''"}
+              ${printerr}/bin/printerr failed to create ${"''''$branch''''"}
             }
         }
       }

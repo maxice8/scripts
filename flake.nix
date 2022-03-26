@@ -10,8 +10,19 @@
         pkgs = import nixpkgs {
           inherit system;
           config = { allowUnfree = true; };
+          overlays = [
+            (final: prev: {
+              inherit (self.packages.${system})
+                printerr
+                printok
+                gbr
+                dlbr
+                main-branch
+                guess-remote
+                tracking-branch;
+            })
+          ];
         };
-        relative = self.packages.${system};
       in
       rec {
         packages = {
@@ -19,34 +30,29 @@
           printerr = pkgs.callPackage ./scripts/printerr.nix { };
           guess-remote = pkgs.callPackage ./scripts/guess-remote.nix { };
           main-branch = pkgs.callPackage ./scripts/main-branch.nix { };
-          gbr = pkgs.callPackage ./scripts/gbr.nix { inherit relative; };
+          gbr = pkgs.callPackage ./scripts/gbr.nix { };
           unpk = pkgs.callPackage ./scripts/unpk.nix { };
           fgc = pkgs.callPackage ./scripts/fgc.nix { };
           tracking-branch = pkgs.callPackage ./scripts/tracking-branch.nix { };
-          dlbr = pkgs.callPackage ./scripts/dlbr.nix { inherit relative; };
+          dlbr = pkgs.callPackage ./scripts/dlbr.nix { };
           pm = pkgs.callPackage ./scripts/pm.nix { };
-          rmlocal = pkgs.callPackage ./scripts/rmlocal.nix { inherit relative; };
+          rmlocal = pkgs.callPackage ./scripts/rmlocal.nix { };
           gha = pkgs.callPackage ./scripts/gha.nix { };
-          git-clean-branches = pkgs.callPackage ./scripts/git-clean-branches.nix { inherit relative; };
-        };
-        overlays =
-          final:
-          prev:
-          {
-            maxice8-scripts = pkgs.buildEnv {
-              name = "maxice8-scripts";
-              paths =
-                [
-                  packages.gbr
-                  packages.unpk
-                  packages.fgc
-                  packages.dlbr
-                  packages.pm
-                  packages.rmlocal
-                  packages.gha
-                  packages.git-clean-branches
-                ];
-            };
+          git-clean-branches = pkgs.callPackage ./scripts/git-clean-branches.nix { };
+          maxice8-scripts = pkgs.buildEnv {
+            name = "maxice8-scripts";
+            paths =
+              [
+                self.packages.${system}.gbr
+                self.packages.${system}.unpk
+                self.packages.${system}.fgc
+                self.packages.${system}.dlbr
+                self.packages.${system}.pm
+                self.packages.${system}.rmlocal
+                self.packages.${system}.gha
+                self.packages.${system}.git-clean-branches
+              ];
           };
+        };
       });
 }

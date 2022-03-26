@@ -1,5 +1,8 @@
-{ pkgs }:
-pkgs.writeShellScriptBin "pm"
+{ writeShellScriptBin
+, glab
+, git
+}:
+writeShellScriptBin "pm"
   ''
     # pm - ports merge
     # uses `glab` to merge a merge request
@@ -10,7 +13,7 @@ pkgs.writeShellScriptBin "pm"
     for arg; do
       case "$arg" in
         --help)
-          ${pkgs.glab}/bin/glab --help
+          ${glab}/bin/glab --help
           exit 0
           ;;
         -*) opts="$opts $arg" ;;
@@ -18,7 +21,7 @@ pkgs.writeShellScriptBin "pm"
       esac
     done
 
-    [ "$mrs" = "" ] && mrs="$(${pkgs.git}/bin/git branch --show-current)"
+    [ "$mrs" = "" ] && mrs="$(${git}/bin/git branch --show-current)"
 
     if [ -n "$AMR_DRY_RUN" ]; then
       printf -- 'Merge Requests: !%s\n' $mrs
@@ -26,7 +29,7 @@ pkgs.writeShellScriptBin "pm"
     fi
 
     for mr in $mrs; do
-      ${pkgs.glab}/bin/glab \
+      ${glab}/bin/glab \
         mr merge \
         --yes \
         --rebase \

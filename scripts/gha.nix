@@ -1,7 +1,10 @@
-{ pkgs }:
-pkgs.writeShellScriptBin "gha"
+{ writeShellScriptBin
+, git
+, findutils
+}:
+writeShellScriptBin "gha"
   ''
-    ${pkgs.git}/bin/git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 1
+    ${git}/bin/git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 1
     [ $# -lt 1 ] && set -- HEAD
-    ${pkgs.git}/bin/git rev-parse "$@" | ${pkgs.findutils}/bin/xargs
+    ${git}/bin/git rev-parse "$@" | ${findutils}/bin/xargs
   ''
