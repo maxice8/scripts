@@ -3,6 +3,6 @@
 }:
 writeShellScriptBin "vid-grab"
   ''
-    [ $# -lt 1 ] && 0
+    [ $# -lt 1 ] && 1
     exec ${youtube-dl}/bin/youtube-dl -f best "$@"
   ''
