@@ -38,6 +38,8 @@
           rmlocal = pkgs.callPackage ./scripts/rmlocal.nix { };
           gha = pkgs.callPackage ./scripts/gha.nix { };
           git-clean-branches = pkgs.callPackage ./scripts/git-clean-branches.nix { };
+          vid-grab = pkgs.callPackage ./scripts/vid-grab.nix { };
+          yt-grab = pkgs.callPackage ./scripts/yt-grab.nix { };
           maxice8-scripts = pkgs.buildEnv {
             name = "maxice8-scripts";
             paths =
@@ -50,6 +52,8 @@
                 self.packages.${system}.rmlocal
                 self.packages.${system}.gha
                 self.packages.${system}.git-clean-branches
+                self.packages.${system}.vid-grab
+                self.packages.${system}.yt-grab
               ];
           };
         };
