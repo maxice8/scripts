@@ -10,52 +10,40 @@
         pkgs = import nixpkgs {
           inherit system;
           config = { allowUnfree = true; };
-          overlays = [
-            (final: prev:
-              # attrSet that includes all defined packages
-              builtins.listToAttrs
-                (map
-                  (x: {
-                    name = x;
-                    value = self.packages.${system}.${x};
-                  })
-                  (builtins.attrNames self.packages.${system})))
-          ];
+          # Have each package we defined available for eachother to use
+          # so that packages like 'x' can use 'y' even though both
+          # are defined at the same time
+          overlays = [ (final: prev: self.packages.${system}) ];
         };
       in
-      rec {
-        packages = {
-          printok = pkgs.callPackage ./scripts/printok.nix { };
-          printerr = pkgs.callPackage ./scripts/printerr.nix { };
-          guess-remote = pkgs.callPackage ./scripts/guess-remote.nix { };
-          main-branch = pkgs.callPackage ./scripts/main-branch.nix { };
-          gbr = pkgs.callPackage ./scripts/gbr.nix { };
-          unpk = pkgs.callPackage ./scripts/unpk.nix { };
-          fgc = pkgs.callPackage ./scripts/fgc.nix { };
-          tracking-branch = pkgs.callPackage ./scripts/tracking-branch.nix { };
-          dlbr = pkgs.callPackage ./scripts/dlbr.nix { };
-          pm = pkgs.callPackage ./scripts/pm.nix { };
-          rmlocal = pkgs.callPackage ./scripts/rmlocal.nix { };
-          gha = pkgs.callPackage ./scripts/gha.nix { };
-          git-clean-branches = pkgs.callPackage ./scripts/git-clean-branches.nix { };
-          vid-grab = pkgs.callPackage ./scripts/vid-grab.nix { };
-          yt-grab = pkgs.callPackage ./scripts/yt-grab.nix { };
-          maxice8-scripts = pkgs.buildEnv {
-            name = "maxice8-scripts";
-            paths =
-              [
-                self.packages.${system}.gbr
-                self.packages.${system}.unpk
-                self.packages.${system}.fgc
-                self.packages.${system}.dlbr
-                self.packages.${system}.pm
-                self.packages.${system}.rmlocal
-                self.packages.${system}.gha
-                self.packages.${system}.git-clean-branches
-                self.packages.${system}.vid-grab
-                self.packages.${system}.yt-grab
-              ];
+      {
+        packages =
+          # Read each file in scripts/ and create a package for each
+          builtins.listToAttrs
+            (map
+              (x: {
+                # Remove the '.nix' suffix for the package
+                name = builtins.replaceStrings [ ".nix" ] [ "" ] x;
+                value = pkgs.callPackage (./scripts + "/${x}") { };
+              })
+              (builtins.attrNames (builtins.readDir ./scripts))) //
+          {
+            maxice8-scripts = pkgs.buildEnv {
+              name = "maxice8-scripts";
+              paths =
+                with self.packages.${system}; [
+                  gbr
+                  unpk
+                  fgc
+                  dlbr
+                  pm
+                  rmlocal
+                  gha
+                  git-clean-branches
+                  vid-grab
+                  yt-grab
+                ];
+            };
           };
-        };
       });
 }
