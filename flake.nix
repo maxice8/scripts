@@ -42,6 +42,7 @@
                   git-clean-branches
                   vid-grab
                   yt-grab
+                  uedit
                 ];
             };
           };
